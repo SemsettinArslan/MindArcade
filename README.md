@@ -1,2 +1,2 @@
 # BitirmeProjesi
-BitirmeProjesi
+BitirmeProjesi Test.
