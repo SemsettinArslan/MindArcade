@@ -983,6 +983,7 @@ MonoBehaviour:
   sequenceLength: 5
   delayBetweenCubes: 0.5
   maxLives: 2
+  decoyChance: 0.35
   OnLivesChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -992,7 +993,7 @@ MonoBehaviour:
   OnGameOver:
     m_PersistentCalls:
       m_Calls: []
-  mistakeWarningText: {fileID: 595212926}
+  instructionText: {fileID: 595212926}
 --- !u!4 &1322462076
 Transform:
   m_ObjectHideFlags: 0
