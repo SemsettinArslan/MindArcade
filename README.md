@@ -1,2 +1,5 @@
 # BitirmeProjesi
-BitirmeProjesi Test.
+Mevcut Oyunlar:
+- FocusRunner
+- MemoryMatch
+- SequenceCube
