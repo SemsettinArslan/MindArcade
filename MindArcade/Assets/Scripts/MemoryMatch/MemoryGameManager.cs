@@ -71,7 +71,7 @@ namespace MemoryMatch
 
         public void StartGame()
         {
-            IsGameRunning = true;
+            IsGameRunning = false; // Animasyon bitene kadar oyun başlamıyor
             _totalGameTime = 0f;
             _currentMatches = 0;
 
@@ -84,9 +84,13 @@ namespace MemoryMatch
 
             var deck = _deckGenerator.GenerateDeck(currentMatchMode);
             _deckGenerator.ShuffleDeck(deck);
-            boardManager.SetupBoard(deck, OnCardClicked);
 
-            GameEvents.RaiseGameStarted();
+            // Kartlar giriş animasyonu bitince oyun başlar
+            boardManager.SetupBoard(deck, OnCardClicked, () =>
+            {
+                IsGameRunning = true;
+                GameEvents.RaiseGameStarted();
+            });
         }
 
         public void EndGame()

@@ -1,15 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Collections;
+using DG.Tweening;
 using MindArcade.Core;
+using MindArcade.Core.UI;
 
 namespace FocusRunner
 {
     /// <summary>
     /// SRP: Sadece FocusRunner oyununun UI güncellemelerinden sorumludur.
+    /// Core UI Framework kullanır: GameOverPanel, AnimatedButton.
     /// GameEvents üzerinden event-driven çalışır.
-    /// PlayerController'daki FindObjectOfType bağımlılığı kaldırıldı.
     /// </summary>
     public class FocusRunnerUI : MonoBehaviour
     {
@@ -24,12 +25,13 @@ namespace FocusRunner
         [SerializeField] private Color _correctFlashColor = new Color(0, 1, 0, 0.3f);
         [SerializeField] private Color _wrongFlashColor = new Color(1, 0, 0, 0.3f);
 
-        [Header("Panels")]
-        [SerializeField] private GameObject _gameOverPanel;
+        [Header("Core UI Panelleri")]
+        [SerializeField] private GameOverPanel _gameOverPanel;
+
+        private Tween _flashTween;
 
         private void OnEnable()
         {
-            // Event-driven: PlayerController artık bu sınıfı doğrudan çağırmaz
             GameEvents.OnFlashFeedback += TriggerFlash;
             GameEvents.OnLevelChanged += OnLevelChanged;
         }
@@ -56,6 +58,8 @@ namespace FocusRunner
         {
             if (RuleManager.Instance != null)
                 RuleManager.Instance.OnRuleChanged -= UpdateRuleUI;
+
+            _flashTween?.Kill();
         }
 
         private void Update()
@@ -74,35 +78,49 @@ namespace FocusRunner
         private void TriggerFlash(bool isCorrect)
         {
             if (_flashOverlay == null) return;
-            StopAllCoroutines();
-            StartCoroutine(FlashRoutine(isCorrect ? _correctFlashColor : _wrongFlashColor));
+
+            // DOTween ile flash (Coroutine yerine)
+            _flashTween?.Kill();
+            Color targetColor = isCorrect ? _correctFlashColor : _wrongFlashColor;
+            _flashOverlay.color = targetColor;
+
+            _flashTween = _flashOverlay
+                .DOFade(0f, 0.25f)
+                .SetEase(Ease.OutQuad);
+
+            // Skor text'i punch efekti
+            if (_scoreText != null)
+            {
+                _scoreText.transform.DOKill();
+                _scoreText.transform.localScale = Vector3.one;
+                _scoreText.transform.DOPunchScale(
+                    isCorrect ? Vector3.one * 0.15f : Vector3.one * -0.1f,
+                    0.3f, 6, 0.5f
+                );
+            }
+
+            GameEvents.RaiseSFXRequested(isCorrect ? "correct" : "wrong");
         }
 
         private void OnLevelChanged(int newLevel)
         {
             ShowLevelUpNotification($"SEVİYE: {newLevel}");
+            GameEvents.RaiseSFXRequested("level_up");
         }
 
         // ─── UI Methods ─────────────────────────────────────────
 
-        private IEnumerator FlashRoutine(Color targetColor)
-        {
-            float duration = 0.25f;
-            float elapsed = 0;
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                _flashOverlay.color = Color.Lerp(targetColor, Color.clear, elapsed / duration);
-                yield return null;
-            }
-            _flashOverlay.color = Color.clear;
-        }
-
         private void UpdateRuleUI(GameRule rule, string description)
         {
             if (_ruleText != null)
+            {
                 _ruleText.text = description;
+
+                // Kural değişim animasyonu
+                _ruleText.transform.DOKill();
+                _ruleText.transform.localScale = Vector3.one * 1.3f;
+                _ruleText.transform.DOScale(Vector3.one, 0.4f).SetEase(Ease.OutBack);
+            }
 
             ShowLevelUpNotification("HEDEF DEĞİŞTİ!");
         }
@@ -114,19 +132,31 @@ namespace FocusRunner
             _levelNotificationText.text = text;
             _levelNotificationText.gameObject.SetActive(true);
 
-            CancelInvoke(nameof(HideNotification));
-            Invoke(nameof(HideNotification), 1.5f);
+            // DOTween ile göster/gizle animasyonu
+            _levelNotificationText.transform.DOKill();
+            _levelNotificationText.transform.localScale = Vector3.zero;
+
+            Sequence seq = DOTween.Sequence();
+            seq.Append(_levelNotificationText.transform.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack));
+            seq.AppendInterval(1.2f);
+            seq.Append(_levelNotificationText.transform.DOScale(Vector3.zero, 0.2f).SetEase(Ease.InBack));
+            seq.OnComplete(() =>
+            {
+                if (_levelNotificationText != null)
+                    _levelNotificationText.gameObject.SetActive(false);
+            });
         }
 
-        private void HideNotification()
+        public void ShowGameOver(int score)
         {
-            if (_levelNotificationText != null)
-                _levelNotificationText.gameObject.SetActive(false);
-        }
-
-        public void ToggleGameOver(bool active)
-        {
-            if (_gameOverPanel != null) _gameOverPanel.SetActive(active);
+            if (_gameOverPanel != null)
+            {
+                _gameOverPanel.ShowGameOver(
+                    title: "Oyun Bitti!",
+                    score: score,
+                    subtitle: $"Doğruluk: {FocusRunnerManager.Instance.Accuracy:P0}"
+                );
+            }
         }
     }
 }

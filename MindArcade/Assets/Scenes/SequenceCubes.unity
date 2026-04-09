@@ -187,6 +187,107 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2617418a3664f441a8e6bdc45dff3b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SequenceCubes.SequenceCube
+--- !u!1001 &446172757
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 763733163}
+    m_Modifications:
+    - target: {fileID: 3826470226683689742, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_Name
+      value: PausePanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 3826470226683689742, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
 --- !u!114 &605925388 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6689832228667034523, guid: 75b6b80cc08a5d3438e216a1e773132c, type: 3}
@@ -198,6 +299,107 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2617418a3664f441a8e6bdc45dff3b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SequenceCubes.SequenceCube
+--- !u!1001 &625612892
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 763733163}
+    m_Modifications:
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7107465094442644420, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_Name
+      value: GameOverPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 7107465094442644420, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
 --- !u!1 &683914664
 GameObject:
   m_ObjectHideFlags: 0
@@ -372,6 +574,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1728301796}
+  - {fileID: 1414557013}
+  - {fileID: 1477445814}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -588,6 +792,7 @@ GameObject:
   - component: {fileID: 1322462079}
   - component: {fileID: 1322462078}
   - component: {fileID: 1322462077}
+  - component: {fileID: 1322462081}
   m_Layer: 0
   m_Name: SequenceManager
   m_TagString: Untagged
@@ -619,6 +824,7 @@ MonoBehaviour:
   inputHandler: {fileID: 1322462079}
   livesManager: {fileID: 1322462078}
   uiController: {fileID: 1322462077}
+  gameOverPanel: {fileID: 1477445815}
   OnLivesChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -656,6 +862,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SequenceCubes.SequenceUIController
   instructionText: {fileID: 1728301797}
+  showDuration: 0.3
+  hideDuration: 0.2
 --- !u!114 &1322462078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -694,6 +902,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SequenceCubes.SequencePlayer
   delayBetweenCubes: 0.5
+--- !u!114 &1322462081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1322462074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5d4e55067e795749b08153370d0142b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MindArcade.Core.UI.PauseManager
+  pausePanel: {fileID: 1684616295}
 --- !u!1001 &1384153100
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -762,6 +983,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2617418a3664f441a8e6bdc45dff3b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SequenceCubes.SequenceCube
+--- !u!224 &1414557013 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 4578672784993378675, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+  m_PrefabInstance: {fileID: 446172757}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &1477445814 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2445475356105571542, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+  m_PrefabInstance: {fileID: 625612892}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1477445815 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 509920618369811441, guid: a99fec7484ec93b45b88f598a86919e0, type: 3}
+  m_PrefabInstance: {fileID: 625612892}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d769fcf91a1d9db4588e27b3e8713eb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MindArcade.Core.UI.GameOverPanel
+--- !u!114 &1684616295 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4605595490368494820, guid: 1a2dccd3e2f382d41b8b1da77d9ccb80, type: 3}
+  m_PrefabInstance: {fileID: 446172757}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef15ad3f513d09844a2aa5149df3d625, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MindArcade.Core.UI.PausePanel
 --- !u!1 &1728301795
 GameObject:
   m_ObjectHideFlags: 0

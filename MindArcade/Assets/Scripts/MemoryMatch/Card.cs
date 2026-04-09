@@ -59,6 +59,16 @@ namespace MemoryMatch
         }
 
         /// <summary>
+        /// Kartın tıklanabilirliğini dışarıdan kontrol eder.
+        /// Giriş animasyonu sırasında false yapılır.
+        /// </summary>
+        public void SetInteractable(bool interactable)
+        {
+            if (cardButton != null)
+                cardButton.interactable = interactable;
+        }
+
+        /// <summary>
         /// Seçildiğinde Büyü (Rengi değiştirmek yerine Boyutu değiştiriyoruz ki asıl renk kaybolmasın)
         /// </summary>
         public void SetSelectedStatus(bool isSelected)

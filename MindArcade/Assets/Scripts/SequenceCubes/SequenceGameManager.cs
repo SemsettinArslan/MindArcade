@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using SequenceCubes.Rules;
 using MindArcade.Core;
+using MindArcade.Core.UI;
 
 namespace SequenceCubes
 {
@@ -35,6 +36,9 @@ namespace SequenceCubes
         [SerializeField] private LivesManager livesManager;
         [SerializeField] private SequenceUIController uiController;
 
+        [Header("Core UI Panelleri (Inspector'dan Ata)")]
+        [SerializeField] private GameOverPanel gameOverPanel;
+
         [Header("Olaylar (Eventler)")]
         public UnityEvent<int> OnLivesChanged;
         public UnityEvent OnGameWin;
@@ -48,6 +52,9 @@ namespace SequenceCubes
         private List<SequenceCube> _expectedClickSequence;
         private ISequenceRule _currentRule;
         private int _currentInputIndex;
+
+        private int _score;
+        private int _roundsCompleted;
 
         private void Start()
         {
@@ -65,6 +72,10 @@ namespace SequenceCubes
             livesManager.OnLivesChanged += (lives) => OnLivesChanged?.Invoke(lives);
             livesManager.OnAllLivesLost += HandleGameOver;
 
+            // GameOverPanel tekrar oyna butonu
+            if (gameOverPanel != null)
+                gameOverPanel.OnPlayAgainClicked += RestartGame;
+
             StartGame();
         }
 
@@ -81,8 +92,20 @@ namespace SequenceCubes
         public void StartGame()
         {
             IsGameRunning = true;
+            _score = 0;
+            _roundsCompleted = 0;
             livesManager.ResetLives();
 
+            // GameOver panelini kapat
+            if (gameOverPanel != null)
+                gameOverPanel.HideGameOver();
+
+            StartNewRound();
+            GameEvents.RaiseGameStarted();
+        }
+
+        private void StartNewRound()
+        {
             // Yeni dizi üret
             _sequenceGenerator.Generate(
                 sequenceLength,
@@ -94,8 +117,6 @@ namespace SequenceCubes
 
             // Sekansı oynat
             StartCoroutine(ShowSequenceThenAcceptInput());
-
-            GameEvents.RaiseGameStarted();
         }
 
         public void EndGame()
@@ -182,8 +203,21 @@ namespace SequenceCubes
 
         private void HandleGameOver()
         {
+            EndGame();
             OnGameOver?.Invoke();
-            StartCoroutine(RestartAfterDelay(2f));
+
+            // Core GameOverPanel göster
+            if (gameOverPanel != null)
+            {
+                gameOverPanel.ShowGameOver(
+                    title: "Oyun Bitti!",
+                    score: _score,
+                    subtitle: $"{_roundsCompleted} tur tamamlandı",
+                    isVictory: false
+                );
+            }
+
+            GameEvents.RaiseSFXRequested("defeat");
         }
 
         private void HandleSuccess()
@@ -191,10 +225,20 @@ namespace SequenceCubes
             inputHandler.IsAcceptingInput = false;
             SetCubesInteractable(false);
 
+            _score += 100;
+            _roundsCompleted++;
             OnGameWin?.Invoke();
+
             uiController.ShowFeedback("<color=green>BRAVO!\nDizi Çözüldü.</color>", 1.5f);
+            GameEvents.RaiseSFXRequested("correct");
+            GameEvents.RaiseScoreChanged(_score);
 
             StartCoroutine(NextRoundAfterDelay(2f));
+        }
+
+        private void RestartGame()
+        {
+            StartGame();
         }
 
         // ─── Helpers ────────────────────────────────────────────
@@ -211,16 +255,10 @@ namespace SequenceCubes
             StartCoroutine(ShowSequenceThenAcceptInput());
         }
 
-        private IEnumerator RestartAfterDelay(float delay)
-        {
-            yield return new WaitForSeconds(delay);
-            StartGame();
-        }
-
         private IEnumerator NextRoundAfterDelay(float delay)
         {
             yield return new WaitForSeconds(delay);
-            StartGame();
+            StartNewRound();
         }
     }
 }
