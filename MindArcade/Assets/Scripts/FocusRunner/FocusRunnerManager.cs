@@ -1,22 +1,24 @@
 using UnityEngine;
-using System.Collections.Generic;
+using MindArcade.Core;
 
 namespace FocusRunner
 {
-    public class FocusRunnerManager : MonoBehaviour
+    /// <summary>
+    /// Oyun yaşam döngüsü ve skor yönetimi.
+    /// IGameManager interface'i implement eder.
+    /// </summary>
+    public class FocusRunnerManager : MonoBehaviour, IGameManager
     {
         public static FocusRunnerManager Instance { get; private set; }
 
         public bool IsGameRunning { get; private set; }
-        
+
         [Header("Stats")]
         public int Score;
         public float Accuracy;
-        public float AverageReactionTime;
 
         private int _correctMatches;
         private int _totalAttempts;
-        private float _gameStartTime;
 
         private void Awake()
         {
@@ -35,18 +37,19 @@ namespace FocusRunner
             Accuracy = 1.0f;
             _correctMatches = 0;
             _totalAttempts = 0;
-            _gameStartTime = Time.time;
-            
+
             IsGameRunning = true;
 
             if (RuleManager.Instance != null)
                 RuleManager.Instance.SetRandomRule();
+
+            GameEvents.RaiseGameStarted();
         }
 
         public void EndGame()
         {
             IsGameRunning = false;
-            // UI trigger for Game Over screen
+            GameEvents.RaiseGameEnded();
         }
 
         public void ReportMatchResult(bool isCorrect)
@@ -64,6 +67,9 @@ namespace FocusRunner
 
             Accuracy = (float)_correctMatches / _totalAttempts;
             DifficultyManager.Instance.ReportPlayerAction(isCorrect);
+
+            GameEvents.RaiseScoreChanged(Score);
+            GameEvents.RaiseMatchResult(isCorrect);
         }
     }
 }

@@ -1,8 +1,12 @@
 using UnityEngine;
-using UnityEngine.InputSystem; 
 
 namespace FocusRunner
 {
+    /// <summary>
+    /// Oyuncunun fiziksel hareketini ve toplama etkileşimini yönetir.
+    /// Input sorumluluğu FocusRunnerInputHandler'a devredildi.
+    /// UI bağımlılığı event-driven olarak kaldırıldı.
+    /// </summary>
     public class PlayerController : MonoBehaviour
     {
         [Header("Movement")]
@@ -13,63 +17,32 @@ namespace FocusRunner
         [SerializeField] private ParticleSystem _correctParticle;
         [SerializeField] private ParticleSystem _wrongParticle;
 
-        private Vector3 _targetPosition;
-        private Vector2 _swipeStart;
-        private float _minSwipeDistance = 50f;
-        private bool _isSwiping = false;
+        [Header("Bağımlılıklar (Inspector'dan Ata)")]
+        [SerializeField] private FocusRunnerInputHandler _inputHandler;
 
-        private FocusRunnerUI _ui;
+        private Vector3 _targetPosition;
+
+        private void OnEnable()
+        {
+            if (_inputHandler != null)
+                _inputHandler.OnLaneChangeRequested += ChangeLane;
+        }
+
+        private void OnDisable()
+        {
+            if (_inputHandler != null)
+                _inputHandler.OnLaneChangeRequested -= ChangeLane;
+        }
 
         private void Start()
         {
-            _ui = FindObjectOfType<FocusRunnerUI>();
             UpdateTargetPosition();
             transform.position = _targetPosition;
         }
 
         private void Update()
         {
-            HandleInput();
             MoveTowardTarget();
-        }
-
-        private void HandleInput()
-        {
-            // --- KLAVYE KONTROLÜ ---
-            if (Keyboard.current != null)
-            {
-                if (Keyboard.current.leftArrowKey.wasPressedThisFrame || Keyboard.current.aKey.wasPressedThisFrame)
-                {
-                    ChangeLane(-1);
-                }
-                else if (Keyboard.current.rightArrowKey.wasPressedThisFrame || Keyboard.current.dKey.wasPressedThisFrame)
-                {
-                    ChangeLane(1);
-                }
-            }
-
-            // --- MOBİL DOKUNMATİK / SWIPE ---
-            if (Touchscreen.current != null)
-            {
-                var touch = Touchscreen.current.primaryTouch;
-
-                if (touch.press.wasPressedThisFrame)
-                {
-                    _swipeStart = touch.position.ReadValue();
-                    _isSwiping = true;
-                }
-                else if (touch.press.wasReleasedThisFrame && _isSwiping)
-                {
-                    Vector2 swipeEnd = touch.position.ReadValue();
-                    float dist = swipeEnd.x - _swipeStart.x;
-
-                    if (Mathf.Abs(dist) > _minSwipeDistance)
-                    {
-                        ChangeLane(dist > 0 ? 1 : -1);
-                    }
-                    _isSwiping = false;
-                }
-            }
         }
 
         private void ChangeLane(int direction)
@@ -84,17 +57,29 @@ namespace FocusRunner
 
         private void UpdateTargetPosition()
         {
-            _targetPosition = new Vector3(FocusRunnerConstants.GetLaneX(_currentLane), transform.position.y, transform.position.z);
+            _targetPosition = new Vector3(
+                FocusRunnerConstants.GetLaneX(_currentLane),
+                transform.position.y,
+                transform.position.z
+            );
         }
 
         private void MoveTowardTarget()
         {
-            transform.position = Vector3.Lerp(transform.position, _targetPosition, Time.deltaTime * _laneChangeSpeed);
+            transform.position = Vector3.Lerp(
+                transform.position,
+                _targetPosition,
+                Time.deltaTime * _laneChangeSpeed
+            );
         }
 
+        /// <summary>
+        /// StroopObject trigger'ından çağrılır.
+        /// Doğrulama ve rapor işini yapar, UI'ı event ile bilgilendirir.
+        /// </summary>
         public void OnCollect(StroopObject item)
         {
-            bool isCorrect = false;
+            bool isCorrect;
 
             if (item.IsObstacle)
             {
@@ -105,9 +90,9 @@ namespace FocusRunner
                 isCorrect = RuleManager.Instance.ValidateMatch(item.data, item.inkColor);
             }
 
-            // UI'daki parlama efektini tetikle
-            if (_ui != null) _ui.TriggerFlash(isCorrect);
-            
+            // Event-driven feedback (UI doğrudan bağımlılığı yok)
+            MindArcade.Core.GameEvents.RaiseFlashFeedback(isCorrect);
+
             PlayFeedback(isCorrect);
             FocusRunnerManager.Instance.ReportMatchResult(isCorrect);
         }

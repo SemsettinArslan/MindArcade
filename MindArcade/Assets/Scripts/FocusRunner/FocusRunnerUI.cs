@@ -2,31 +2,50 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using MindArcade.Core;
 
 namespace FocusRunner
 {
+    /// <summary>
+    /// SRP: Sadece FocusRunner oyununun UI güncellemelerinden sorumludur.
+    /// GameEvents üzerinden event-driven çalışır.
+    /// PlayerController'daki FindObjectOfType bağımlılığı kaldırıldı.
+    /// </summary>
     public class FocusRunnerUI : MonoBehaviour
     {
         [Header("Texts")]
         [SerializeField] private TMP_Text _ruleText;
         [SerializeField] private TMP_Text _scoreText;
-        [SerializeField] private TMP_Text _statsText; // Level, Accuracy
+        [SerializeField] private TMP_Text _statsText;
         [SerializeField] private TMP_Text _levelNotificationText;
 
         [Header("Feedback Effects")]
-        [SerializeField] private Image _flashOverlay; // Ekranda tam boy bir Image olmalı (Alpha 0)
+        [SerializeField] private Image _flashOverlay;
         [SerializeField] private Color _correctFlashColor = new Color(0, 1, 0, 0.3f);
         [SerializeField] private Color _wrongFlashColor = new Color(1, 0, 0, 0.3f);
 
         [Header("Panels")]
         [SerializeField] private GameObject _gameOverPanel;
 
+        private void OnEnable()
+        {
+            // Event-driven: PlayerController artık bu sınıfı doğrudan çağırmaz
+            GameEvents.OnFlashFeedback += TriggerFlash;
+            GameEvents.OnLevelChanged += OnLevelChanged;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.OnFlashFeedback -= TriggerFlash;
+            GameEvents.OnLevelChanged -= OnLevelChanged;
+        }
+
         private void Start()
         {
             if (RuleManager.Instance != null)
                 RuleManager.Instance.OnRuleChanged += UpdateRuleUI;
 
-            if (_levelNotificationText != null) 
+            if (_levelNotificationText != null)
                 _levelNotificationText.gameObject.SetActive(false);
 
             if (_flashOverlay != null)
@@ -43,25 +62,34 @@ namespace FocusRunner
         {
             if (FocusRunnerManager.Instance == null) return;
 
-            if (_scoreText != null) 
+            if (_scoreText != null)
                 _scoreText.text = $"Puan: {FocusRunnerManager.Instance.Score}";
 
             if (_statsText != null)
                 _statsText.text = $"Lvl: {DifficultyManager.Instance.currentLevel} | Doğruluk: {FocusRunnerManager.Instance.Accuracy:P0}";
         }
 
-        public void TriggerFlash(bool isCorrect)
+        // ─── Event Handlers ─────────────────────────────────────
+
+        private void TriggerFlash(bool isCorrect)
         {
             if (_flashOverlay == null) return;
             StopAllCoroutines();
             StartCoroutine(FlashRoutine(isCorrect ? _correctFlashColor : _wrongFlashColor));
         }
 
+        private void OnLevelChanged(int newLevel)
+        {
+            ShowLevelUpNotification($"SEVİYE: {newLevel}");
+        }
+
+        // ─── UI Methods ─────────────────────────────────────────
+
         private IEnumerator FlashRoutine(Color targetColor)
         {
             float duration = 0.25f;
             float elapsed = 0;
-            
+
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
@@ -74,9 +102,7 @@ namespace FocusRunner
         private void UpdateRuleUI(GameRule rule, string description)
         {
             if (_ruleText != null)
-            {
                 _ruleText.text = description;
-            }
 
             ShowLevelUpNotification("HEDEF DEĞİŞTİ!");
         }
@@ -84,17 +110,17 @@ namespace FocusRunner
         public void ShowLevelUpNotification(string text)
         {
             if (_levelNotificationText == null) return;
-            
+
             _levelNotificationText.text = text;
             _levelNotificationText.gameObject.SetActive(true);
-            
+
             CancelInvoke(nameof(HideNotification));
             Invoke(nameof(HideNotification), 1.5f);
         }
 
         private void HideNotification()
         {
-            if (_levelNotificationText != null) 
+            if (_levelNotificationText != null)
                 _levelNotificationText.gameObject.SetActive(false);
         }
 

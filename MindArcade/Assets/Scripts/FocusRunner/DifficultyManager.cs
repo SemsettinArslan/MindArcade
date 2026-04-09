@@ -1,9 +1,14 @@
 using UnityEngine;
-using System;
+using MindArcade.Core;
 
 namespace FocusRunner
 {
-    public class DifficultyManager : MonoBehaviour
+    /// <summary>
+    /// Adaptif zorluk sistemi.
+    /// FindObjectOfType kaldırıldı — LevelGenerator artık SerializeField ile bağlanıyor.
+    /// Kural değişim zamanlayıcısı burada kalıyor (RuleManager'ın ne zaman değişeceği zorlukla ilgili).
+    /// </summary>
+    public class DifficultyManager : MonoBehaviour, IDifficultyProvider
     {
         public static DifficultyManager Instance { get; private set; }
 
@@ -16,10 +21,15 @@ namespace FocusRunner
         public float ruleChangeInterval = 10f;
         public float ObstacleFrequency = 0.3f;
 
-        private int _consecutiveCorrect = 0;
-        private int _consecutiveWrong = 0;
+        [Header("Bağımlılıklar (Inspector'dan Ata)")]
+        [SerializeField] private LevelGenerator _levelGenerator;
 
+        private int _consecutiveCorrect;
+        private int _consecutiveWrong;
         private float _ruleTimer;
+
+        // --- IDifficultyProvider ---
+        public int CurrentLevel => currentLevel;
 
         private void Awake()
         {
@@ -45,21 +55,17 @@ namespace FocusRunner
             {
                 _consecutiveCorrect++;
                 _consecutiveWrong = 0;
-                
+
                 if (_consecutiveCorrect >= 5)
-                {
                     LevelUp();
-                }
             }
             else
             {
                 _consecutiveWrong++;
                 _consecutiveCorrect = 0;
-                
+
                 if (_consecutiveWrong >= 2)
-                {
                     LevelDown();
-                }
             }
         }
 
@@ -67,14 +73,14 @@ namespace FocusRunner
         {
             currentLevel++;
             _consecutiveCorrect = 0;
-            
-            // Adjust parameters
+
             currentSpeed = Mathf.Clamp(currentSpeed + 1f, 5f, 25f);
             spawnInterval = Mathf.Clamp(spawnInterval - 0.1f, 0.5f, 3f);
             ObstacleFrequency = Mathf.Clamp(ObstacleFrequency + 0.05f, 0.1f, 0.6f);
             ruleChangeInterval = Mathf.Clamp(ruleChangeInterval - 0.5f, 5f, 15f);
 
             ApplyToSystems();
+            GameEvents.RaiseLevelChanged(currentLevel);
         }
 
         private void LevelDown()
@@ -82,21 +88,20 @@ namespace FocusRunner
             if (currentLevel > 1) currentLevel--;
             _consecutiveWrong = 0;
 
-            // Adjust parameters
             currentSpeed = Mathf.Clamp(currentSpeed - 1.5f, 5f, 25f);
             spawnInterval = Mathf.Clamp(spawnInterval + 0.2f, 0.5f, 3f);
             ObstacleFrequency = Mathf.Clamp(ObstacleFrequency - 0.1f, 0.1f, 0.6f);
 
             ApplyToSystems();
+            GameEvents.RaiseLevelChanged(currentLevel);
         }
 
         private void ApplyToSystems()
         {
-            LevelGenerator gen = FindObjectOfType<LevelGenerator>();
-            if (gen != null)
+            if (_levelGenerator != null)
             {
-                gen.SetSpeed(currentSpeed);
-                gen.SetSpawnInterval(spawnInterval);
+                _levelGenerator.SetSpeed(currentSpeed);
+                _levelGenerator.SetSpawnInterval(spawnInterval);
             }
         }
     }
