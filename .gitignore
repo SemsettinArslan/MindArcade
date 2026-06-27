@@ -74,3 +74,8 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Gemini API Key
+*gemini_key.txt
+*gemini_key.txt.meta
+MindArcade/Assets/Art/

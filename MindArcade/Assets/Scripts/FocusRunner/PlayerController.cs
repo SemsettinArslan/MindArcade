@@ -17,6 +17,12 @@ namespace FocusRunner
         [SerializeField] private ParticleSystem _correctParticle;
         [SerializeField] private ParticleSystem _wrongParticle;
 
+        [Header("Animasyon Ayarları")]
+        [Tooltip("Karakter modelinin üzerindeki Animator bileşeni (Alt objede yer alır).")]
+        [SerializeField] private Animator characterAnimator;
+        [SerializeField] private string dodgeLeftTrigger = "DodgeLeft";
+        [SerializeField] private string dodgeRightTrigger = "DodgeRight";
+
         [Header("Bağımlılıklar (Inspector'dan Ata)")]
         [SerializeField] private FocusRunnerInputHandler _inputHandler;
 
@@ -52,6 +58,19 @@ namespace FocusRunner
             {
                 _currentLane = newLane;
                 UpdateTargetPosition();
+
+                // Animasyonları tetikle
+                if (characterAnimator != null)
+                {
+                    if (direction > 0)
+                    {
+                        characterAnimator.SetTrigger(dodgeRightTrigger);
+                    }
+                    else if (direction < 0)
+                    {
+                        characterAnimator.SetTrigger(dodgeLeftTrigger);
+                    }
+                }
             }
         }
 
@@ -101,6 +120,9 @@ namespace FocusRunner
         {
             if (isCorrect && _correctParticle != null) _correctParticle.Play();
             else if (!isCorrect && _wrongParticle != null) _wrongParticle.Play();
+
+            // Ses efektlerini tetikle
+            MindArcade.Core.GameEvents.RaiseSFXRequested(isCorrect ? "correct" : "wrong");
         }
     }
 }

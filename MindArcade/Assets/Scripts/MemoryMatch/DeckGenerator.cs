@@ -17,11 +17,13 @@ namespace MemoryMatch
         }
 
         /// <summary>
-        /// Verilen oyun moduna göre 16 kartlık bir deste üretir.
+        /// Verilen oyun moduna göre belirtilen sayıda eşleşme içeren bir deste üretir.
         /// </summary>
-        public List<CardData> GenerateDeck(StroopMatchMode mode)
+        public List<CardData> GenerateDeck(StroopMatchMode mode, int matchCount)
         {
-            List<int> selectedIndices = PickRandomIndices(8, _palette.Count);
+            // Palette boyutundan fazla eşleşme istenirse sınırla
+            int safeMatchCount = Mathf.Min(matchCount, _palette.Count);
+            List<int> selectedIndices = PickRandomIndices(safeMatchCount, _palette.Count);
 
             return mode == StroopMatchMode.TextVsColor
                 ? GenerateTextVsColorDeck(selectedIndices)
@@ -58,9 +60,10 @@ namespace MemoryMatch
 
         private List<CardData> GenerateTextVsColorDeck(List<int> selectedIndices)
         {
-            List<CardData> deck = new List<CardData>(16);
+            int count = selectedIndices.Count;
+            List<CardData> deck = new List<CardData>(count * 2);
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < count; i++)
             {
                 int colorIndex = selectedIndices[i];
                 string colorName = _palette.GetColorName(colorIndex);
@@ -98,9 +101,10 @@ namespace MemoryMatch
 
         private List<CardData> GenerateTextVsTextDeck(List<int> selectedIndices)
         {
-            List<CardData> deck = new List<CardData>(16);
+            int count = selectedIndices.Count;
+            List<CardData> deck = new List<CardData>(count * 2);
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < count; i++)
             {
                 int wordIndex = selectedIndices[i];
                 string wordName = _palette.GetColorName(wordIndex);

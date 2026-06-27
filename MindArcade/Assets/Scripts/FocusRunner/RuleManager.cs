@@ -36,15 +36,15 @@ namespace FocusRunner
             switch (_currentRule)
             {
                 case GameRule.MatchColor:
-                    return $"DİKKAT: <color=#{hexColor}>RENK</color> OLANLARI TOPLA";
+                    return $"DIKKAT :  <color=#{hexColor}>RENK</color> OLANLARI TOPLA";
                 case GameRule.MatchText:
-                    return $"DİKKAT: <color=white>'{_targetStroop.colorName}'</color> YAZANLARI TOPLA";
+                    return $"DIKKAT :  <color=white>'{_targetStroop.colorName}'</color> YAZANLARI TOPLA";
                 case GameRule.MatchInverse:
-                    return "<color=red>DIŞINDAKİLERİ</color> TOPLA: " + _targetStroop.colorName;
+                    return "<color=red>DISINDAKILERI</color> TOPLA :  " + _targetStroop.colorName;
                 case GameRule.SpecificColor:
-                    return $"SADECE <color=#{hexColor}>{_targetStroop.colorName}</color> RENGİ TOPLA";
+                    return $"SADECE <color=#{hexColor}>{_targetStroop.colorName}</color> RENGI TOPLA";
                 default:
-                    return "ENGELLERDEN KAÇIN!";
+                    return "ENGELLERDEN KACIN!";
             }
         }
 

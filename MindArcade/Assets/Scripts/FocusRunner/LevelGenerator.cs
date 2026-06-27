@@ -14,8 +14,24 @@ namespace FocusRunner
         [SerializeField] private float _spawnInterval = 2f;
         [SerializeField] private float _speed = 10f;
 
+        [Header("Player Y Hizalama Ayarları")]
+        [Tooltip("Oyuncu nesnesi referansı. Boş bırakılırsa sahnede otomatik aranır.")]
+        [SerializeField] private Transform playerTransform;
+
         private float _timer;
         private List<StroopObject> _activeObjects = new List<StroopObject>();
+
+        private void Start()
+        {
+            if (playerTransform == null)
+            {
+                PlayerController player = FindObjectOfType<PlayerController>();
+                if (player != null)
+                {
+                    playerTransform = player.transform;
+                }
+            }
+        }
 
         private void Update()
         {
@@ -51,8 +67,19 @@ namespace FocusRunner
             int lane = Random.Range(0, FocusRunnerConstants.TotalLanes);
             bool isObstacle = Random.value < DifficultyManager.Instance.ObstacleFrequency;
 
-            StroopObject newObj = Instantiate(_stroopPrefab, transform);
-            newObj.transform.position = new Vector3(FocusRunnerConstants.GetLaneX(lane), 0.5f, _spawnDistance);
+            // Eğer engel ise ve _obstaclePrefab atanmışsa onu spawn et, aksi halde normal prefab'i kullan
+            GameObject prefabToSpawn = (isObstacle && _obstaclePrefab != null) ? _obstaclePrefab : _stroopPrefab.gameObject;
+            GameObject spawnedObj = Instantiate(prefabToSpawn, transform);
+
+            float spawnY = playerTransform != null ? playerTransform.position.y : 0.5f;
+            spawnedObj.transform.position = new Vector3(FocusRunnerConstants.GetLaneX(lane), spawnY, _spawnDistance);
+
+            StroopObject newObj = spawnedObj.GetComponent<StroopObject>();
+            if (newObj == null)
+            {
+                // Eğer engel prefab'inde StroopObject yoksa otomatik ekle (hareket ve çarpışma mantığı için)
+                newObj = spawnedObj.AddComponent<StroopObject>();
+            }
 
             if (isObstacle)
             {

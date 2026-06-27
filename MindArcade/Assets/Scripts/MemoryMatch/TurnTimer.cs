@@ -19,6 +19,14 @@ namespace MemoryMatch
         public event Action<float> OnTimerUpdated; // Her frame kalan süreyi bildirir
 
         /// <summary>
+        /// Zamanlayıcı limitini dinamik olarak günceller.
+        /// </summary>
+        public void SetTimeLimit(float limit)
+        {
+            turnTimeLimit = limit;
+        }
+
+        /// <summary>
         /// Zamanlayıcıyı başlatır.
         /// </summary>
         public void StartTimer()

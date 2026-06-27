@@ -49,10 +49,23 @@ namespace SequenceCubes
             // 1. Rastgele kural seç
             selectedRule = _rules[Random.Range(0, _rules.Length)];
 
-            // 2. Aksiyonları üret
+            // 2. Aktif küpleri filtrele
+            List<SequenceCube> activeCubes = new List<SequenceCube>();
+            foreach (var cube in _availableCubes)
+            {
+                if (cube != null && cube.gameObject.activeSelf)
+                {
+                    activeCubes.Add(cube);
+                }
+            }
+            if (activeCubes.Count == 0)
+            {
+                activeCubes.AddRange(_availableCubes);
+            }
+
             for (int i = 0; i < sequenceLength; i++)
             {
-                SequenceCube randomCube = _availableCubes[Random.Range(0, _availableCubes.Length)];
+                SequenceCube randomCube = activeCubes[UnityEngine.Random.Range(0, activeCubes.Count)];
                 bool isDecoy = Random.value < decoyChance;
                 generatedActions.Add(new SequenceAction { Cube = randomCube, IsDecoy = isDecoy });
             }

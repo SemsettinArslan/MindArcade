@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
+using MindArcade.Core.Llm;
 
 namespace MindArcade.Core.UI
 {
@@ -33,9 +35,16 @@ namespace MindArcade.Core.UI
         [Tooltip("Her sahne yüklendiğinde otomatik FadeIn yapılsın mı?")]
         [SerializeField] private bool autoFadeInOnSceneLoad = true;
 
+        [Header("Yükleme Efekti (Bobbing)")]
+        [Tooltip("Aşağı yukarı hareket ettirilecek UI Elemanı (Logo/Yazı Grubu)")]
+        [SerializeField] private RectTransform bobbingElement;
+        [SerializeField] private float bobAmplitude = 20f;
+        [SerializeField] private float bobDuration = 1.5f;
+
         private Image _fadeImage;
         private CanvasGroup _canvasGroup;
         private Tween _currentTween;
+        private Tween _bobTween;
 
         private void Awake()
         {
@@ -57,6 +66,23 @@ namespace MindArcade.Core.UI
             _fadeImage.raycastTarget = true;
             _canvasGroup.alpha = 0f;
             _canvasGroup.blocksRaycasts = false;
+        }
+
+        private void Start()
+        {
+            StartBobbing();
+        }
+
+        private void StartBobbing()
+        {
+            if (bobbingElement == null) return;
+
+            _bobTween?.Kill();
+            float startY = bobbingElement.anchoredPosition.y;
+            _bobTween = bobbingElement.DOAnchorPosY(startY + bobAmplitude, bobDuration)
+                .SetEase(Ease.InOutSine)
+                .SetLoops(-1, LoopType.Yoyo)
+                .SetUpdate(true);
         }
 
         private void OnEnable()
@@ -132,9 +158,27 @@ namespace MindArcade.Core.UI
         {
             FadeOut(() =>
             {
-                SceneManager.LoadScene(sceneName);
-                // FadeIn otomatik olacak → OnSceneLoaded callback'i
+                StartCoroutine(LoadSceneWithPrefetch(sceneName));
             });
+        }
+
+        private IEnumerator LoadSceneWithPrefetch(string sceneName)
+        {
+            // Eğer hedef sahne bir oyunsa zorluk pre-fetch et
+            if (sceneName == "MemoryMatch" || sceneName == "FocusRunner" || sceneName == "SequenceCubes")
+            {
+                if (LlmDifficultyManager.Instance != null)
+                {
+                    Debug.Log($"[ScreenFader] Oyun baslamadan once zorluk pre-fetch ediliyor: {sceneName}");
+                    Task task = LlmDifficultyManager.Instance.PreFetchDifficultyConfig(sceneName);
+                    while (!task.IsCompleted)
+                    {
+                        yield return null;
+                    }
+                }
+            }
+
+            SceneManager.LoadScene(sceneName);
         }
 
         private void KillCurrent()
@@ -146,6 +190,7 @@ namespace MindArcade.Core.UI
         private void OnDestroy()
         {
             KillCurrent();
+            _bobTween?.Kill();
         }
     }
 }

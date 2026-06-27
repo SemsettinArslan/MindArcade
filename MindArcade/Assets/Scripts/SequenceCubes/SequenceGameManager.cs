@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,7 @@ using UnityEngine.Events;
 using SequenceCubes.Rules;
 using MindArcade.Core;
 using MindArcade.Core.UI;
+using MindArcade.Core.Llm;
 
 namespace SequenceCubes
 {
@@ -55,6 +57,7 @@ namespace SequenceCubes
 
         private int _score;
         private int _roundsCompleted;
+        private int _currentLevel = 1;
 
         private void Start()
         {
@@ -74,9 +77,24 @@ namespace SequenceCubes
 
             // GameOverPanel tekrar oyna butonu
             if (gameOverPanel != null)
+            {
                 gameOverPanel.OnPlayAgainClicked += RestartGame;
+                gameOverPanel.OnMainMenuClicked += GoToMainMenu;
+            }
 
             StartGame();
+        }
+
+        private void GoToMainMenu()
+        {
+            if (SceneNavigator.Instance != null)
+            {
+                SceneNavigator.Instance.LoadScene(SceneType.MainMenu);
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+            }
         }
 
         private void OnDestroy()
@@ -84,6 +102,12 @@ namespace SequenceCubes
             if (livesManager != null)
             {
                 livesManager.OnAllLivesLost -= HandleGameOver;
+            }
+
+            if (gameOverPanel != null)
+            {
+                gameOverPanel.OnPlayAgainClicked -= RestartGame;
+                gameOverPanel.OnMainMenuClicked -= GoToMainMenu;
             }
         }
 
@@ -94,13 +118,18 @@ namespace SequenceCubes
             IsGameRunning = true;
             _score = 0;
             _roundsCompleted = 0;
+            _currentLevel = 1;
             livesManager.ResetLives();
+
+            // İlk zorluğu varsayılan parametrelerle yerel olarak ata
+            ApplyDifficultySettings(1, 1.0f, 0.2f);
 
             // GameOver panelini kapat
             if (gameOverPanel != null)
                 gameOverPanel.HideGameOver();
 
-            StartNewRound();
+            // LLM'den başlangıç zorluğu talep et ve oyunu başlat
+            StartCoroutine(FetchDifficultyAndStartRound());
             GameEvents.RaiseGameStarted();
         }
 
@@ -124,6 +153,13 @@ namespace SequenceCubes
             IsGameRunning = false;
             inputHandler.IsAcceptingInput = false;
             SetCubesInteractable(false);
+
+            // Profil verilerini kaydet
+            float finalAccuracy = CalculateAccuracy();
+            bool failed = livesManager.CurrentLives <= 0;
+            int mistakes = 3 - livesManager.CurrentLives; // Varsayılan 3 can üzerinden kayıpları hesapla
+            PlayerProfileManager.UpdateProfile("SequenceCubes", finalAccuracy, _score, _currentLevel, Time.timeSinceLevelLoad, mistakes, failed: failed);
+
             GameEvents.RaiseGameEnded();
         }
 
@@ -188,10 +224,12 @@ namespace SequenceCubes
             SetCubesInteractable(false);
 
             livesManager.LoseLife();
+            
+            GameEvents.RaiseSFXRequested("wrong");
 
             if (livesManager.IsAlive)
             {
-                uiController.ShowFeedback($"HATA!\nKalan Hak: {livesManager.CurrentLives}\n(Tekrar İzle)", 2f);
+                uiController.ShowFeedback($"HATA!\nKalan Hak: {livesManager.CurrentLives}\n(Tekrar Izle)", 2f);
                 // Aynı diziyi tekrar göster
                 StartCoroutine(RetryAfterDelay(2f));
             }
@@ -212,7 +250,7 @@ namespace SequenceCubes
                 gameOverPanel.ShowGameOver(
                     title: "Oyun Bitti!",
                     score: _score,
-                    subtitle: $"{_roundsCompleted} tur tamamlandı",
+                    subtitle: $"{_roundsCompleted} tur tamamlandi",
                     isVictory: false
                 );
             }
@@ -229,16 +267,165 @@ namespace SequenceCubes
             _roundsCompleted++;
             OnGameWin?.Invoke();
 
-            uiController.ShowFeedback("<color=green>BRAVO!\nDizi Çözüldü.</color>", 1.5f);
+            uiController.ShowFeedback("<color=green>BRAVO!\nDizi Cozuldu.</color>", 1.5f);
             GameEvents.RaiseSFXRequested("correct");
             GameEvents.RaiseScoreChanged(_score);
 
-            StartCoroutine(NextRoundAfterDelay(2f));
+            // Sonraki raund öncesi LLM'den parametre güncellemesi iste
+            StartCoroutine(NextRoundAfterLlmUpdate(2f));
+        }
+
+        private IEnumerator NextRoundAfterLlmUpdate(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            yield return StartCoroutine(FetchDifficultyAndStartRound());
+        }
+
+        private IEnumerator FetchDifficultyAndStartRound()
+        {
+            if (uiController != null)
+            {
+                uiController.ShowRuleDescription("Yapay Zeka yeni soru hazirliyor...", 0f);
+            }
+
+            bool isRequestDone = false;
+            LlmDifficultyConfig receivedConfig = null;
+
+            RequestLlmDifficulty((config) =>
+            {
+                receivedConfig = config;
+                isRequestDone = true;
+            });
+
+            while (!isRequestDone)
+            {
+                yield return null;
+            }
+
+            if (receivedConfig != null && !string.IsNullOrEmpty(receivedConfig.aiComment))
+            {
+                yield return new WaitForSeconds(2.5f);
+            }
+
+            StartNewRound();
         }
 
         private void RestartGame()
         {
-            StartGame();
+            if (SceneNavigator.Instance != null)
+            {
+                SceneNavigator.Instance.LoadScene(SceneType.SequenceCubes);
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+            }
+        }
+
+        // ─── LLM & Difficulty Helpers ───────────────────────────
+
+        private void RequestLlmDifficulty(Action<LlmDifficultyConfig> onComplete)
+        {
+            if (LlmDifficultyManager.Instance != null)
+            {
+                // Önce pre-fetch edilmiş zorluğu kontrol et
+                LlmDifficultyConfig preFetched = LlmDifficultyManager.Instance.GetAndClearPreFetchedConfig("SequenceCubes");
+                if (preFetched != null)
+                {
+                    Debug.Log("[SequenceGameManager] Pre-fetched LLM zorlugu uygulaniyor.");
+                    ApplyLlmConfig(preFetched);
+                    onComplete?.Invoke(preFetched);
+                    return;
+                }
+
+                float accuracy = CalculateAccuracy();
+                LlmDifficultyManager.Instance.RequestDifficultyConfig(
+                    gameName: "SequenceCubes",
+                    currentSessionLevel: _currentLevel,
+                    currentSessionAccuracy: accuracy,
+                    currentSessionScore: _score,
+                    currentSessionTime: Time.timeSinceLevelLoad,
+                    onSuccess: (config) =>
+                    {
+                        ApplyLlmConfig(config);
+                        onComplete?.Invoke(config);
+                    },
+                    onFailure: () =>
+                    {
+                        Debug.Log("[SequenceGameManager] LLM baglantisi kurulamadi veya Cooldown aktif, yerel zorluk devrede.");
+                        ApplyLocalFallbackDifficulty();
+                        onComplete?.Invoke(null);
+                    }
+                );
+            }
+            else
+            {
+                ApplyLocalFallbackDifficulty();
+                onComplete?.Invoke(null);
+            }
+        }
+
+        private float CalculateAccuracy()
+        {
+            int mistakes = 3 - livesManager.CurrentLives;
+            if (_roundsCompleted + mistakes == 0) return 1.0f;
+            return (float)_roundsCompleted / (_roundsCompleted + mistakes);
+        }
+
+        private void ApplyDifficultySettings(int level, float speedMultiplier, float decoyChanceVal)
+        {
+            _currentLevel = level;
+            
+            // 1. Aktif Küp Sayısı
+            // Seviye 1: 3 küp, Seviye 2: 4 küp, Seviye 3: 5 küp, Seviye 4: 6 küp, Seviye 5+: Hepsi
+            int cubesToActivate = Mathf.Clamp(3 + (level - 1), 3, availableCubes.Length);
+            for (int i = 0; i < availableCubes.Length; i++)
+            {
+                if (availableCubes[i] != null)
+                {
+                    availableCubes[i].gameObject.SetActive(i < cubesToActivate);
+                }
+            }
+
+            // 2. Rastgele Dizi Uzunluğu Belirleme (Min - Max range)
+            int minLen = Mathf.Clamp(level + 2, 3, 7);
+            int maxLen = Mathf.Clamp(level + 4, 4, 9);
+            sequenceLength = UnityEngine.Random.Range(minLen, maxLen + 1);
+
+            // 3. Küp Animasyon ve Oynatma Hızlarını Güncelleme
+            foreach (var cube in availableCubes)
+            {
+                if (cube != null)
+                {
+                    cube.SetSpeedMultiplier(speedMultiplier);
+                }
+            }
+            if (sequencePlayer != null)
+            {
+                sequencePlayer.SetSpeedMultiplier(speedMultiplier);
+            }
+
+            // 4. Decoy Şansı
+            decoyChance = Mathf.Clamp(decoyChanceVal, 0.1f, 0.6f);
+        }
+
+        private void ApplyLocalFallbackDifficulty()
+        {
+            int calculatedLevel = 1 + (_roundsCompleted / 2);
+            float speedMultiplier = 1.0f + (calculatedLevel - 1) * 0.1f;
+            float localDecoyChance = 0.2f + (calculatedLevel - 1) * 0.05f;
+
+            ApplyDifficultySettings(calculatedLevel, speedMultiplier, localDecoyChance);
+        }
+
+        private void ApplyLlmConfig(LlmDifficultyConfig config)
+        {
+            ApplyDifficultySettings(config.suggestedLevel, config.speedMultiplier, config.decoyChance);
+
+            if (uiController != null && !string.IsNullOrEmpty(config.aiComment))
+            {
+                uiController.ShowFeedback(config.aiComment, 2.5f);
+            }
         }
 
         // ─── Helpers ────────────────────────────────────────────
@@ -253,12 +440,6 @@ namespace SequenceCubes
         {
             yield return new WaitForSeconds(delay);
             StartCoroutine(ShowSequenceThenAcceptInput());
-        }
-
-        private IEnumerator NextRoundAfterDelay(float delay)
-        {
-            yield return new WaitForSeconds(delay);
-            StartNewRound();
         }
     }
 }

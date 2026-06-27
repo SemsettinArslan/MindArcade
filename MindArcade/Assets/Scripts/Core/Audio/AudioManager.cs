@@ -19,6 +19,8 @@ namespace MindArcade.Core.Audio
 
         [Header("Müzik")]
         [SerializeField] private AudioSource musicSource;
+        [Tooltip("Bütün sahnelerde çalacak varsayılan arka plan müziği.")]
+        [SerializeField] private AudioClip defaultBackgroundMusic;
 
         [Header("Ayarlar")]
         [Range(0f, 1f)]
@@ -52,6 +54,14 @@ namespace MindArcade.Core.Audio
             else
             {
                 Destroy(gameObject);
+            }
+        }
+
+        private void Start()
+        {
+            if (defaultBackgroundMusic != null)
+            {
+                PlayMusic(defaultBackgroundMusic);
             }
         }
 

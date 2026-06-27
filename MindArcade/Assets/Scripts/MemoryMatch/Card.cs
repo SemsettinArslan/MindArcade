@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 
 namespace MemoryMatch
 {
@@ -86,27 +87,18 @@ namespace MemoryMatch
 
         private System.Collections.IEnumerator ErrorRoutine()
         {
-            // Renkli kartsak (Yazısızsa) rengini kaybetmemek için hatayı sağ-sol sallanarak ver
-            if (_isSolidColorCard)
+            // Grid Layout ile çakışmaması için anchoredPosition yerine scale sarsıyoruz
+            transform.DOKill();
+            transform.localScale = Vector3.one;
+            transform.DOPunchScale(new Vector3(0.15f, 0.15f, 0.15f), 0.4f, 10, 1f);
+
+            background.color = errorBgColor;
+            yield return new WaitForSeconds(0.5f);
+
+            if (!IsMatched)
             {
-                RectTransform rt = GetComponent<RectTransform>();
-                Vector2 orig = rt.anchoredPosition;
-                
-                // Hızlı sağ sol titreşimi (Mini Tween Alternatifi)
-                rt.anchoredPosition = orig + new Vector2(10, 0);
-                yield return new WaitForSeconds(0.1f);
-                rt.anchoredPosition = orig - new Vector2(10, 0);
-                yield return new WaitForSeconds(0.1f);
-                rt.anchoredPosition = orig + new Vector2(5, 0);
-                yield return new WaitForSeconds(0.1f);
-                rt.anchoredPosition = orig;
-            }
-            else
-            {
-                background.color = errorBgColor;
-                yield return new WaitForSeconds(0.5f);
-                if (!IsMatched)
-                    background.color = _baseBackgroundColor;
+                background.color = _baseBackgroundColor;
+                transform.localScale = Vector3.one;
             }
         }
 
@@ -120,6 +112,11 @@ namespace MemoryMatch
             
             // Renkleri yarı karartalım (RGB çarpımı 0.5)
             background.color = new Color(_baseBackgroundColor.r * 0.5f, _baseBackgroundColor.g * 0.5f, _baseBackgroundColor.b * 0.5f, 1f);
+        }
+
+        private void OnDestroy()
+        {
+            transform.DOKill();
         }
     }
 }

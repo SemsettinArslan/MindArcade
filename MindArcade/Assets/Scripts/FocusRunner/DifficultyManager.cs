@@ -1,5 +1,6 @@
 using UnityEngine;
 using MindArcade.Core;
+using MindArcade.Core.Llm;
 
 namespace FocusRunner
 {
@@ -14,6 +15,8 @@ namespace FocusRunner
 
         [Header("Global Settings")]
         public int currentLevel = 1;
+        public float currentSpeedMultiplier = 1.0f;
+        public int maxMistakesAllowed = 5;
 
         [Header("Dynamic Parameters")]
         public float currentSpeed = 10f;
@@ -23,6 +26,7 @@ namespace FocusRunner
 
         [Header("Bağımlılıklar (Inspector'dan Ata)")]
         [SerializeField] private LevelGenerator _levelGenerator;
+        [SerializeField] private FocusRunnerUI _focusRunnerUI;
 
         private int _consecutiveCorrect;
         private int _consecutiveWrong;
@@ -35,6 +39,18 @@ namespace FocusRunner
         {
             if (Instance == null) Instance = this;
             else Destroy(gameObject);
+        }
+
+        private void Start()
+        {
+            GameEvents.OnGameStarted += RequestLlmDifficulty;
+            if (_focusRunnerUI == null)
+                _focusRunnerUI = FindObjectOfType<FocusRunnerUI>();
+        }
+
+        private void OnDestroy()
+        {
+            GameEvents.OnGameStarted -= RequestLlmDifficulty;
         }
 
         private void Update()
@@ -55,45 +71,108 @@ namespace FocusRunner
             {
                 _consecutiveCorrect++;
                 _consecutiveWrong = 0;
-
-                if (_consecutiveCorrect >= 5)
-                    LevelUp();
             }
             else
             {
                 _consecutiveWrong++;
                 _consecutiveCorrect = 0;
-
-                if (_consecutiveWrong >= 2)
-                    LevelDown();
             }
         }
 
-        private void LevelUp()
+        private void RequestLlmDifficulty()
+        {
+            if (LlmDifficultyManager.Instance != null)
+            {
+                // Önce pre-fetch edilmiş zorluğu kontrol et
+                LlmDifficultyConfig preFetched = LlmDifficultyManager.Instance.GetAndClearPreFetchedConfig("FocusRunner");
+                if (preFetched != null)
+                {
+                    Debug.Log("[DifficultyManager] Pre-fetched LLM zorlugu uygulaniyor.");
+                    ApplyLlmConfig(preFetched);
+                    return;
+                }
+
+                LlmDifficultyManager.Instance.RequestDifficultyConfig(
+                    gameName: "FocusRunner",
+                    currentSessionLevel: currentLevel,
+                    currentSessionAccuracy: FocusRunnerManager.Instance.Accuracy,
+                    currentSessionScore: FocusRunnerManager.Instance.TotalScore,
+                    currentSessionTime: Time.timeSinceLevelLoad,
+                    onSuccess: ApplyLlmConfig,
+                    onFailure: () => Debug.Log("[DifficultyManager] LLM baglantisi kurulamadi veya Cooldown aktif, yerel zorluk devrede.")
+                );
+            }
+        }
+
+        private void ApplyLlmConfig(LlmDifficultyConfig config)
+        {
+            currentLevel = config.suggestedLevel;
+            currentSpeedMultiplier = config.speedMultiplier;
+            maxMistakesAllowed = config.maxMistakesAllowed;
+
+            currentSpeed = Mathf.Clamp(10f * config.speedMultiplier, 5f, 25f);
+            spawnInterval = Mathf.Clamp(2.0f / config.speedMultiplier, 0.5f, 3f);
+            ObstacleFrequency = Mathf.Clamp(config.decoyChance, 0.1f, 0.6f);
+
+            ApplyToSystems();
+
+            if (FocusRunnerManager.Instance != null)
+            {
+                FocusRunnerManager.Instance.OnLevelAdvanced(currentLevel, maxMistakesAllowed);
+            }
+
+            GameEvents.RaiseLevelChanged(currentLevel);
+
+            if (_focusRunnerUI != null && !string.IsNullOrEmpty(config.aiComment))
+            {
+                _focusRunnerUI.ShowLevelUpNotification(config.aiComment);
+            }
+        }
+
+        public void AdvanceLevel()
         {
             currentLevel++;
             _consecutiveCorrect = 0;
+            _consecutiveWrong = 0;
 
-            currentSpeed = Mathf.Clamp(currentSpeed + 1f, 5f, 25f);
-            spawnInterval = Mathf.Clamp(spawnInterval - 0.1f, 0.5f, 3f);
+            currentSpeedMultiplier += 0.1f;
+            currentSpeed = Mathf.Clamp(10f * currentSpeedMultiplier, 5f, 25f);
+            spawnInterval = Mathf.Clamp(2.0f / currentSpeedMultiplier, 0.5f, 3f);
             ObstacleFrequency = Mathf.Clamp(ObstacleFrequency + 0.05f, 0.1f, 0.6f);
             ruleChangeInterval = Mathf.Clamp(ruleChangeInterval - 0.5f, 5f, 15f);
 
             ApplyToSystems();
+
+            RequestLlmDifficulty();
+
+            if (FocusRunnerManager.Instance != null)
+            {
+                FocusRunnerManager.Instance.OnLevelAdvanced(currentLevel, maxMistakesAllowed);
+            }
+
             GameEvents.RaiseLevelChanged(currentLevel);
         }
 
-        private void LevelDown()
+        public void LevelDown()
         {
-            if (currentLevel > 1) currentLevel--;
+            if (currentLevel > 1)
+            {
+                currentLevel--;
+                currentSpeedMultiplier = Mathf.Max(0.5f, currentSpeedMultiplier - 0.1f);
+                currentSpeed = Mathf.Clamp(10f * currentSpeedMultiplier, 5f, 25f);
+                spawnInterval = Mathf.Clamp(2.0f / currentSpeedMultiplier, 0.5f, 3f);
+                ObstacleFrequency = Mathf.Clamp(ObstacleFrequency - 0.1f, 0.1f, 0.6f);
+
+                ApplyToSystems();
+
+                if (FocusRunnerManager.Instance != null)
+                {
+                    FocusRunnerManager.Instance.OnLevelDown(currentLevel, maxMistakesAllowed);
+                }
+
+                GameEvents.RaiseLevelChanged(currentLevel);
+            }
             _consecutiveWrong = 0;
-
-            currentSpeed = Mathf.Clamp(currentSpeed - 1.5f, 5f, 25f);
-            spawnInterval = Mathf.Clamp(spawnInterval + 0.2f, 0.5f, 3f);
-            ObstacleFrequency = Mathf.Clamp(ObstacleFrequency - 0.1f, 0.1f, 0.6f);
-
-            ApplyToSystems();
-            GameEvents.RaiseLevelChanged(currentLevel);
         }
 
         private void ApplyToSystems()

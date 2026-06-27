@@ -14,6 +14,19 @@ namespace SequenceCubes
         [Tooltip("Küpler arasındaki bekleme süresi")]
         [SerializeField] private float delayBetweenCubes = 0.5f;
 
+        private float _defaultDelayBetweenCubes;
+
+        private void Awake()
+        {
+            _defaultDelayBetweenCubes = delayBetweenCubes;
+        }
+
+        public void SetSpeedMultiplier(float multiplier)
+        {
+            if (multiplier <= 0.1f) multiplier = 0.1f;
+            delayBetweenCubes = _defaultDelayBetweenCubes / multiplier;
+        }
+
         /// <summary>
         /// Verilen aksiyon listesini ekranda sıralı olarak oynatır.
         /// </summary>

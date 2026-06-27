@@ -23,13 +23,13 @@ namespace FocusRunner
         public static readonly StroopData[] ColorPalette = new StroopData[]
         {
             new StroopData { colorName = "KIRMIZI", colorValue = Color.red },
-            new StroopData { colorName = "MAVİ", colorValue = Color.blue },
-            new StroopData { colorName = "YEŞİL", colorValue = Color.green },
+            new StroopData { colorName = "MAVI", colorValue = Color.blue },
+            new StroopData { colorName = "YESIL", colorValue = Color.green },
             new StroopData { colorName = "SARI", colorValue = Color.yellow },
             new StroopData { colorName = "MOR", colorValue = new Color(0.5f, 0, 0.5f) },
             new StroopData { colorName = "TURUNCU", colorValue = new Color(1f, 0.5f, 0) },
             new StroopData { colorName = "BEYAZ", colorValue = Color.white },
-            new StroopData { colorName = "SİYAH", colorValue = Color.black }
+            new StroopData { colorName = "SIYAH", colorValue = Color.black }
         };
 
         public const float LaneWidth = 2.0f;

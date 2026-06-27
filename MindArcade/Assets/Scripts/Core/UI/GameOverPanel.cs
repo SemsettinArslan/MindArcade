@@ -68,7 +68,7 @@ namespace MindArcade.Core.UI
             {
                 timeText.gameObject.SetActive(time >= 0);
                 if (time >= 0)
-                    timeText.text = $"Süre: {time:F1}s";
+                    timeText.text = $"Sure: {time:F1}s";
             }
 
             // Alt Yazı

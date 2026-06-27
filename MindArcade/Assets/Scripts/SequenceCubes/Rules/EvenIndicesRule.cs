@@ -10,7 +10,7 @@ namespace SequenceCubes.Rules
     {
         public string GetDescription()
         {
-            return "<color=#55FFFF>ATLAMALI HAMLE!\nSadece 2. ve 4. \nYUKARI Çıkanları Tıkla!</color>";
+            return "<color=#55FFFF>ATLAMALI HAMLE!\nSadece 2. ve 4. \nYUKARI Cikanlari Tikla!</color>";
         }
 
         public List<SequenceCube> Filter(List<SequenceCube> validUpCubes)

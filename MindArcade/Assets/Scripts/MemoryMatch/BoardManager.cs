@@ -54,6 +54,8 @@ namespace MemoryMatch
         /// <param name="onEntranceComplete">Tüm giriş animasyonu bittiğinde çağrılır (nullable)</param>
         public void SetupBoard(List<CardData> deck, Action<Card> onCardClicked, Action onEntranceComplete = null)
         {
+            AdjustGridLayout(deck.Count);
+
             foreach (var cardData in deck)
             {
                 Card newCard = Instantiate(cardPrefab, cardGridParent);
@@ -67,6 +69,45 @@ namespace MemoryMatch
 
             // Giriş animasyonunu başlat
             PlayEntranceAnimation(onEntranceComplete);
+        }
+
+        /// <summary>
+        /// Kartların ekrandan taşmaması için ızgara düzenini dinamik olarak ayarlar.
+        /// Kart sayısı arttıkça kolon sayısını artırır ve hücre boyutunu küçültür.
+        /// </summary>
+        private void AdjustGridLayout(int totalCards)
+        {
+            GridLayoutGroup gridLayout = cardGridParent.GetComponent<GridLayoutGroup>();
+            if (gridLayout == null) return;
+
+            // Hücre boyutunu her iki oyun modunda da ve tüm kart sayılarında 180x240 olarak sabitliyoruz
+            gridLayout.cellSize = new Vector2(180f, 240f);
+
+            if (totalCards <= 8)
+            {
+                gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                gridLayout.constraintCount = 4;
+            }
+            else if (totalCards <= 12)
+            {
+                gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                gridLayout.constraintCount = 4;
+            }
+            else if (totalCards <= 16)
+            {
+                gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                gridLayout.constraintCount = 4;
+            }
+            else if (totalCards <= 20)
+            {
+                gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                gridLayout.constraintCount = 5;
+            }
+            else // 24 kart veya üzeri
+            {
+                gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                gridLayout.constraintCount = 6;
+            }
         }
 
         /// <summary>

@@ -9,7 +9,7 @@ namespace SequenceCubes.Rules
     {
         public string GetDescription()
         {
-            return "<color=#FF5555>DİKKAT: TERS YÖN!\nYUKARI Çıkanları \nSondan Başa Doğru Tıkla!</color>";
+            return "<color=#FF5555>DIKKAT: TERS YON!\nYUKARI Cikanlari \nSondan Basa Dogru Tikla!</color>";
         }
 
         public List<SequenceCube> Filter(List<SequenceCube> validUpCubes)

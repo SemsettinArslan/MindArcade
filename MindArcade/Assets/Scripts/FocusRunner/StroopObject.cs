@@ -25,10 +25,10 @@ namespace FocusRunner
                 _textLabel.color = inkColor;
             }
 
-            if (_baseRenderer != null)
+            if (_baseRenderer != null && isObstacle)
             {
-                // Optionally change background color or material
-                _baseRenderer.material.color = isObstacle ? Color.gray : Color.white;
+                // Sadece engelse rengini gri yapıyoruz. Normal nesneler prefab üzerindeki orijinal materyal/renklerini korur.
+                _baseRenderer.material.color = Color.gray;
             }
             
             gameObject.SetActive(true);

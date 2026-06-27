@@ -17,7 +17,10 @@ namespace FocusRunner
         [Header("Texts")]
         [SerializeField] private TMP_Text _ruleText;
         [SerializeField] private TMP_Text _scoreText;
-        [SerializeField] private TMP_Text _statsText;
+        [SerializeField] private TMP_Text _statsText; // Eski tek satır statlar için fallback
+        [SerializeField] private TMP_Text _livesText; // Ayrı can göstergesi
+        [SerializeField] private TMP_Text _timeText;  // Ayrı süre göstergesi
+        [SerializeField] private TMP_Text _accuracyText; // Ayrı doğruluk göstergesi
         [SerializeField] private TMP_Text _levelNotificationText;
 
         [Header("Feedback Effects")]
@@ -27,6 +30,8 @@ namespace FocusRunner
 
         [Header("Core UI Panelleri")]
         [SerializeField] private GameOverPanel _gameOverPanel;
+
+        public GameOverPanel GameOverPanel => _gameOverPanel;
 
         private Tween _flashTween;
 
@@ -67,10 +72,28 @@ namespace FocusRunner
             if (FocusRunnerManager.Instance == null) return;
 
             if (_scoreText != null)
-                _scoreText.text = $"Puan: {FocusRunnerManager.Instance.Score}";
+                _scoreText.text = $"Puan: {FocusRunnerManager.Instance.Score} / {FocusRunnerManager.Instance.TargetScore}";
 
-            if (_statsText != null)
-                _statsText.text = $"Lvl: {DifficultyManager.Instance.currentLevel} | Doğruluk: {FocusRunnerManager.Instance.Accuracy:P0}";
+            int remainingMistakes = FocusRunnerManager.Instance.MaxMistakesAllowed - FocusRunnerManager.Instance.Mistakes;
+            if (remainingMistakes < 0) remainingMistakes = 0;
+
+            // Eğer ayrı text alanları atanmışsa onları güncelle
+            if (_livesText != null || _timeText != null || _accuracyText != null)
+            {
+                if (_livesText != null)
+                    _livesText.text = $"Can: {remainingMistakes} / {FocusRunnerManager.Instance.MaxMistakesAllowed}";
+
+                if (_timeText != null)
+                    _timeText.text = $"Sure: {FocusRunnerManager.Instance.LevelTimeRemaining:F1}s";
+
+                if (_accuracyText != null)
+                    _accuracyText.text = $"Dogruluk: {FocusRunnerManager.Instance.Accuracy:P0}";
+            }
+            // Aksi takdirde eski tek satır fallback alanını güncelle (Level bilgisini yazmadan)
+            else if (_statsText != null)
+            {
+                _statsText.text = $"Hak: {remainingMistakes}/{FocusRunnerManager.Instance.MaxMistakesAllowed} | Sure: {FocusRunnerManager.Instance.LevelTimeRemaining:F1}s | Dogruluk: {FocusRunnerManager.Instance.Accuracy:P0}";
+            }
         }
 
         // ─── Event Handlers ─────────────────────────────────────
@@ -104,7 +127,7 @@ namespace FocusRunner
 
         private void OnLevelChanged(int newLevel)
         {
-            ShowLevelUpNotification($"SEVİYE: {newLevel}");
+            ShowLevelUpNotification($"SEVIYE: {newLevel}");
             GameEvents.RaiseSFXRequested("level_up");
         }
 
@@ -122,7 +145,7 @@ namespace FocusRunner
                 _ruleText.transform.DOScale(Vector3.one, 0.4f).SetEase(Ease.OutBack);
             }
 
-            ShowLevelUpNotification("HEDEF DEĞİŞTİ!");
+            ShowLevelUpNotification("HEDEF DEGISTI!");
         }
 
         public void ShowLevelUpNotification(string text)
@@ -154,7 +177,7 @@ namespace FocusRunner
                 _gameOverPanel.ShowGameOver(
                     title: "Oyun Bitti!",
                     score: score,
-                    subtitle: $"Doğruluk: {FocusRunnerManager.Instance.Accuracy:P0}"
+                    subtitle: $"Dogruluk: {FocusRunnerManager.Instance.Accuracy:P0}"
                 );
             }
         }

@@ -24,16 +24,32 @@ namespace MindArcade.Core
     {
         public static SceneNavigator Instance { get; private set; }
 
+        private static bool _isCreatingPersistentInstance = false;
+
         private void Awake()
         {
+            if (_isCreatingPersistentInstance)
+            {
+                // Bu, yeni oluşturulan kalıcı nesnenin Awake çağrısıdır, işlem yapma
+                return;
+            }
+
             if (Instance == null)
             {
-                Instance = this;
-                DontDestroyOnLoad(gameObject);
+                _isCreatingPersistentInstance = true;
+                GameObject navGo = new GameObject("SceneNavigator");
+                Instance = navGo.AddComponent<SceneNavigator>();
+                _isCreatingPersistentInstance = false;
+
+                DontDestroyOnLoad(navGo);
+                
+                // Orijinal GameObject üzerindeki bu scripti temizle (böylece panel hayatta kalır)
+                Destroy(this);
             }
             else
             {
-                Destroy(gameObject);
+                // Zaten bir instance varsa, sadece bu scripti yok et (GameObject'i değil)
+                Destroy(this);
             }
         }
 

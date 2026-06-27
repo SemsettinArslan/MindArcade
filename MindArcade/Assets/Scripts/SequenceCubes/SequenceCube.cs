@@ -24,11 +24,21 @@ namespace SequenceCubes
         
         private Vector3 _originalLocalPosition;
         private Coroutine _animationCoroutine;
+        private float _defaultMoveDuration;
+        private float _currentSpeedMultiplier = 1.0f;
 
         private void Awake()
         {
             // Başlangıç pozisyonunu belleğe al (Parent değiştirme ihtimaline karşı localPosition)
             _originalLocalPosition = transform.localPosition;
+            _defaultMoveDuration = moveDuration;
+        }
+
+        public void SetSpeedMultiplier(float multiplier)
+        {
+            if (multiplier <= 0.1f) multiplier = 0.1f;
+            _currentSpeedMultiplier = multiplier;
+            moveDuration = _defaultMoveDuration / multiplier;
         }
 
         public void Initialize(int id, Action<SequenceCube> onClickedCallback)
@@ -86,8 +96,9 @@ namespace SequenceCubes
 
             transform.localPosition = targetPosition;
             
-            // Tepede hissedilebilir kısa bir süre (0.1sn) bekle (Hissiyatı (Game Feel) güçlendirir)
-            yield return new WaitForSeconds(0.1f);
+            // Tepede hissedilebilir kısa bir süre bekle (Hissiyatı (Game Feel) güçlendirir)
+            float pauseDuration = 0.1f / _currentSpeedMultiplier;
+            yield return new WaitForSeconds(pauseDuration);
 
             // 2. Aşama: Aşağı doğru orijinal konumuna dön
             elapsedTime = 0f;
