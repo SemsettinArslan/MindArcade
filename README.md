@@ -1,12 +1,14 @@
 # 🧠 MindArcade
 
-**Yapay Zeka Destekli Bilişsel Rehabilitasyon Oyun Platformu Bitirme Projesi**
+**Yapay Zeka Destekli Bilişsel Oyun Platformu Bitirme Projesi**
 
 MindArcade, bilişsel beceri gelişimini hedefleyen, **Gemini AI** tabanlı adaptif zorluk sistemi ve **Firebase** altyapılı klinik takip özellikleriyle donatılmış bir Unity oyun platformudur. Stroop Etkisi gibi nöropsikolojik prensipler üzerine kurulu üç farklı mini oyun içerir.
 
 > 🎓 **Bitirme Projesi** — Unity 6 (6000.3.7f1) · C# · Gemini 2.5 Flash · Firebase Realtime Database
 
 ---
+**Video Linki**
+https://www.youtube.com/watch?v=ZzdYfuTI9BA
 
 ## 📑 İçindekiler
 
