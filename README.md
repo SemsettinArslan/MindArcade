@@ -250,6 +250,6 @@ Varsayılan doktor giriş bilgileri:
 ---
 
 ## ⚠️ Yasal Uyarı / Disclaimer
-Bu proje, tıbbi teşhis doğruluğu taahhüt etmeyen deneysel bir yapay zeka çalışmasıdır. Sunulan analizler ve öneriler hekim muayenesi yerine geçmez; sadece bilgilendirme amaçlıdır. Sağlık problemleriniz için her zaman uzman bir Diş Hekimine başvurmalısınız.
+Bu proje, tıbbi teşhis doğruluğu taahhüt etmeyen bir çalışmasıdır. Sunulan analizler ve öneriler hekim muayenesi yerine geçmez; sadece bilgilendirme amaçlıdır. Sağlık problemleriniz için her zaman uzman bir doktora başvurmalısınız.
 
 ---
