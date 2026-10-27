@@ -22,7 +22,6 @@ https://www.youtube.com/watch?v=ZzdYfuTI9BA
 - [Proje Yapısı](#-proje-yapısı)
 - [Kurulum](#-kurulum)
 - [Yapılandırma](#-yapılandırma)
-- [Ekran Görüntüleri](#-ekran-görüntüleri)
 
 ---
 
